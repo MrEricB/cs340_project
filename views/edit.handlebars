@@ -1,0 +1,23 @@
+<h1>Edit an Exersise</h1>
+
+<form action="/update" method="GET">
+	<fieldset>
+	<label for="exercise"> Exercise:</label>	
+	<input type="text" name="exercise" id="exercise" value="{{results.name}}"><br>
+	<label for="reps">Reps:</label>	
+	<input type="number" name="reps" id="reps" value="{{results.reps}}"><br>
+	<label for="weight">Weight:</label>	
+	<input type="number" name="weight" id="weight" value="{{results.weight}}"><br>
+	<label for="lbs">LBS (checked) KG (unchecked):</label>
+	{{#if results.lbs}}
+		<input type="checkbox" name="lbs" id="lbs" checked><br>
+	{{else}}
+		<input type="checkbox" name="lbs" id="lbs"><br>
+	{{/if}}
+	<label for="date">Date:</label>	
+	<input type="date" name="date" id="date" value="{{results.date}}"><br>
+	<input type="hidden" name="id" value={{results.id}}>
+	<input type="submit" name="updateItem" value="Update Item" id="updateItem">
+	</fieldset>
+</form>
+<br>

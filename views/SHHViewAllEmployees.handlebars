@@ -1,0 +1,21 @@
+<h1>Sacred Heart Hospital Employee List</h1>
+        <br>
+        <a href="/" class="btn btn-primary">Return to Portal</a>
+        <br>
+        <br>
+        <button onclick="window.location.href='SHHEmployeeManagement.html';"><strong>Create/Edit Employee Listings</strong></button>
+        <br>
+        <br>
+        <table>
+            <tr>
+                <th>Employee Name</th>
+                <th>Department</th>
+            </tr>
+            {{#each results}}
+            <tr>
+                <td>{{this.First_Name}} {{this.Last_Name}}</td>
+                <td>{{this.Department_Name}}</td>
+                <td><a class="btn btn-secondary" href="/allemployees/id={{this.ID}}">View Details</a></td>
+            </tr>
+            {{/each}}
+        </table>
