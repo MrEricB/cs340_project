@@ -1,28 +1,82 @@
-<h1>Sacred Heart Hospital Patient: {{results.First_Name}} {{results.Last_Name}}</h1>
-        <br>
-        <button onclick="window.location.href='SHHPatientManagement.html';"><strong>Edit Patient Listing</strong></button>
-        <br>
-        <br>
-        <table>
-            <tr>
-                <th>Patient Name</th>
-                <th>Date of Birth</th>
-                <th>Chief Complaint</th>
-                <th>Treatment</th>
-                <th>Insured</th>
-                <th>Bill Paid</th>
-            </tr>
-            <tr>
-                <td>{{results.First_Name}} {{results.Last_Name}}</td>
-                <td>{{results.DOB}}</td>
-                <td>{{results.Chief_Complaint}}</td>
-                
-                {{!-- TODO: add treatments --}}
-                <td>Appendectomy</td>
+<html>
+    <div class="container-fluid">
+        <div class="jumbotron">
+            <div id="pageHeader" class="container">
+                <div class="page-header">
+                    <h1><strong>Sacred Heart Hospital Patient: {{results.First_Name}} {{results.Last_Name}}</strong></h1>
+                </div>
+                <h2><strong>Edit/Delete Patient Listing</strong></h2>
+            </div>
+        </div>
+    </div>
 
-                <td>{{results.Insured}}</td>
-                <td>{{results.Treatment_Paid}}</td>
-                <td><a href="/patients/treatments/id={{results.ID}}&name={{results.First_Name}}" class="btn btn-info">View Treatments</a></td>
-                <td><a href="/patients/doctors/id={{results.ID}}&name={{results.First_Name}}" class="btn btn-info">View Doctors</a></td>
-            </tr>
-        </table>
+    <div class="container">
+        <a href="/" class="btn btn-primary">Return to SHH Portal</a>    
+    </div>
+
+    
+    <div class="container">
+        <!-- List Basic Patient Info Here -->
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <table class="table table-bordered table-striped table-hover">
+                    <tr>
+                        <th class="text-center">Patient Name</th>
+                        <th class="text-center">Date of Birth</th>
+                        <th class="text-center">Cief Complaint</th>
+                        <th class="text-center">Insured</th>
+                        <th class="text-center">Bill Paid</th>
+                    </tr>
+                    <tr>
+                        <td class="text-center">{{results.First_Name}} {{results.Last_Name}}</td>
+                        <td class="text-center">{{results.DOB}}</td>
+                        <td class="text-center">{{results.Chief_Complaint}}</td>
+                        <td class="text-center">{{results.Insured}}</td>
+                        <td class="text-center">{{results.Treatment_Paid}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <!-- List Patient's Treatments Here -->
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                <table class="table table-bordered table-striped table-hover">
+                    <tr>
+                        <th class="text-center">Treatments Received</th>
+                    </tr>
+                    {{#each treatment}}
+                    <tr>
+                        <td class="text-center">{{this.Treatment_Type}}</td>
+                        <td class="text-center"><a class="btn btn-info" href="/treatments/id={{this.ID}}">View Details</a></td>
+                    </tr>
+                    {{/each}}
+                </table>
+            </div>
+
+            <!-- List Patient's Doctors Here -->
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                <table class="table table-bordered table-striped table-hover">
+                    <tr>
+                        <th class="text-center">Attending Physicians</th>
+                    </tr>
+                    {{#each doctor}}
+                    <tr>
+                        <td class="text-center">{{this.First_Name}} {{this.Last_Name}}</td>
+                        <td class="text-center"><a class="btn btn-info" href="/employees/id={{this.ID}}">View Details</a></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Here's the button to edit the patient listing; the href is blank for now-->
+    <div class="container">
+        <a class="btn btn-warning" href="#">Edit Patient Listing</a>
+    </div>
+    
+    <!-- Here's the button to delete the patient listing; the onclick is blank for now-->
+    <div class="container">
+        <button class="btn btn-danger" onclick="">Delete Patient Listing</button>
+    </div>
+</html>
