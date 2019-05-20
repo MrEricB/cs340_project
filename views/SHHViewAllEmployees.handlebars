@@ -1,21 +1,36 @@
-<h1>Sacred Heart Hospital Employee List</h1>
-        <br>
-        <a href="/" class="btn btn-primary">Return to Portal</a>
-        <br>
-        <br>
-        <button onclick="window.location.href='SHHEmployeeManagement.html';"><strong>Create/Edit Employee Listings</strong></button>
-        <br>
-        <br>
-        <table>
-            <tr>
-                <th>Employee Name</th>
-                <th>Department</th>
-            </tr>
-            {{#each results}}
-            <tr>
-                <td>{{this.First_Name}} {{this.Last_Name}}</td>
-                <td>{{this.Department_Name}}</td>
-                <td><a class="btn btn-secondary" href="/allemployees/id={{this.ID}}">View Details</a></td>
-            </tr>
-            {{/each}}
-        </table>
+<html>
+    <div class="container-fluid">
+        <div class="jumbotron">
+            <div id="pageHeader" class="container">
+                <div class="page-header">
+                    <h1><strong>Sacred Heart Hospital Employee List</strong></h1>
+                </div>
+                <h2><strong>View all current employees</strong></h2>
+            </div>
+        </div>>
+    </div>
+    
+    <div class="container">
+        <a href="/" class="btn btn-primary">Return to SHH Portal</a>    
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <table class="table table-bordered table-striped table-hover">
+                    <tr>
+                        <th class="text-center">Patient Name</th>
+                        <th class="text-center">Department</th>
+                    </tr>
+                    {{#each results}}
+                    <tr>
+                        <td class="text-center">{{this.First_Name}} {{this.Last_Name}}</td>
+                        <td class="text-center">{{this.Department_Name}}</td>
+                        <td class="text-center"><a class="btn btn-info" href="/patients/id={{this.ID}}">View Details</a></td>
+                    </tr>
+                    {{/each}}
+                </table>
+            </div>
+        </div>
+    </div>
+</html>
