@@ -1,0 +1,25 @@
+<h1>Sacred Heart Hospital Employee Management</h1>
+        <br>
+        <a href="/" class="btn btn-primary">Return to Home Page</a>
+        <br>
+        <br>
+    
+<form action="/createTreatment" method="POST">
+  Treatment Name:<br>
+  <input type="text" name="treatment_type" placeholder="Treatment">
+  <br>
+  Insurance Covered:<br>
+  <select name="insurance_cover">
+    <option value="1">Yes</option>
+    <option value="0">No</option>
+  </select>
+  <br>
+    Insurance Price:<br>
+  <input type="text" name="insurance_price">
+<br>
+    Uninsured Price:<br>
+  <input type="text" name="uninsurance_price">
+  <br>
+
+  <input type="submit" value="Submit">
+</form>

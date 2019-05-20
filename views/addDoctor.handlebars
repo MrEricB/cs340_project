@@ -1,0 +1,10 @@
+<h1>Add a Doctor</h1>
+<form action="/addDoctor/id={{pid}}" method="post">
+     <select name="doctor">
+         {{#each doctors}}
+        <option value="{{this.ID}}">{{this.First_Name}} {{this.Last_Name}}</option>
+        {{/each}}
+    </select> 
+        <input type="hidden" name="patient" value="{{pid}}">
+        <input type="submit" value="Submit">
+</form>

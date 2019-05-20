@@ -4,7 +4,7 @@
        <a href="/" class="btn btn-primary">Return to Portal</a>
        <br>
         <br>
-        <button onclick="window.location.href='SHHTreatmentManagement.html';"><strong>Create/Edit Treatment Listings</strong></button>
+        <a href="/addDoctor/id={{id}}" class="btn btn-primary">Add Doctor</a>
         <br>
         <br>
         <table>
@@ -16,6 +16,7 @@
             <tr>
                 <td>{{this.First_Name}} {{this.Last_Name}}</td>
                 <td>{{this.Department_Name}}</td>
+                <td><a href="#" class="btn btn-danger">Delete</a></td>
             </tr>
             {{/each}}
         </table>

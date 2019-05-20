@@ -1,0 +1,9 @@
+<h1>Add Treatment</h1>
+<form action="/addTreatment/id={{id}}" method="post">
+     <select name="treatment">
+         {{#each treatments}}
+        <option value="{{this.ID}}">{{this.Treatment_Type}}</option>
+        {{/each}}
+        <input type="submit" value="Submit">
+</select> 
+</form>

@@ -1,11 +1,10 @@
-
- <h1>Sacred Heart Hospital Patient Treatment List</h1>
+<h1>Sacred Heart Hospital Patient Treatment List</h1>
  <h2>Treatments for {{name}}</h2>
         <br>
        <a href="/" class="btn btn-primary">Return to Portal</a>
        <br>
         <br>
-        <button onclick="window.location.href='SHHTreatmentManagement.html';"><strong>Create/Edit Treatment Listings</strong></button>
+       <a href="/addTreatment/id={{id}}" class="btn btn-primary">Add Treatment</a>
         <br>
         <br>
         <table>
@@ -19,6 +18,7 @@
                 <td>{{this.Treatment_Type}}</td>
                 <td>${{this.Insured_Price}}</td>
                 <td>${{this.Uninsured_Price}}</td>
+                <td><a href="#" class="btn btn-danger">Remove Treatment</a></td>
                 {{!-- <td><button onclick="window.location.href='SHHViewIndividualTreatment.html';">View Details</button></td> --}}
             </tr>
             {{/each}}

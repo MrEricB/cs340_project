@@ -1,0 +1,34 @@
+<h1>Sacred Heart Hospital Employee Management</h1>
+        <br>
+        <a href="/" class="btn btn-primary">Return to Home Page</a>
+        <br>
+        <br>
+    
+<form action="/createEmployee" method="POST">
+  First name:<br>
+  <input type="text" name="firstname" placeholder="First Name">
+  <br>
+  Last name:<br>
+  <input type="text" name="lastname" placeholder="Last Name">
+  <br>
+    Salary:<br>
+  <input type="text" name="salary">
+<br>
+    Department:<br>
+  <select name="department">
+      {{#each department}}
+    <option value="{{this.ID}}">{{this.Department_Name}}</option>
+    {{/each}}
+  </select>
+  <br>
+  Employee Type:<br>
+  <select name="employee_type">
+      {{#each employee_type}}
+    <option value="{{this.ID}}">{{this.Employee_Type}}</option>
+    {{/each}}
+  </select>
+  <br>
+  <br>
+  <input type="submit" value="Submit">
+</form>
+

@@ -3,7 +3,8 @@
         <a href="/" class="btn btn-primary">Return to Portal</a>
         <br>
         <br>
-        <button onclick="window.location.href='SHHEmployeeManagement.html';"><strong>Create/Edit Employee Listings</strong></button>
+        {{!-- <button onclick="window.location.href='SHHEmployeeManagement.html';"><strong>Create/Edit Employee Listings</strong></button> --}}
+        <a href="/createEmployee" class="btn btn-primary">Add Employee</a>
         <br>
         <br>
         <table>
@@ -16,6 +17,7 @@
                 <td>{{this.First_Name}} {{this.Last_Name}}</td>
                 <td>{{this.Department_Name}}</td>
                 <td><a class="btn btn-secondary" href="/allemployees/id={{this.ID}}">View Details</a></td>
+                <td><a href="#" class="btn btn-danger">Delete</a></td>
             </tr>
             {{/each}}
         </table>

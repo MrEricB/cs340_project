@@ -3,7 +3,7 @@
         <a href="/" class="btn btn-primary">Return to Portal</a>
         <br>
         <br>
-        <button onclick="window.location.href='SHHPatientManagement.html';"><strong>Create/Edit Patient Listings</strong></button>
+        <a href="/createPatient" class="btn btn-primary">Add Patient</a>
         <br>
         <br>
         <table>
@@ -15,8 +15,9 @@
             <tr>
                 <td>{{this.First_Name}} {{this.Last_Name}}</td>
                 <td>{{this.Chief_Complaint}}</td>
-                {{!-- <td><button onclick="window.location.href='SHHViewIndividualPatient.html';">View Details</button></td> --}}
                 <td><a href="/patients/id={{this.ID}}" class="btn btn-info">View Details</a></td>
+                <td><a href="#" class="btn btn-danger">Delete</a></td>
+
             </tr>
             {{/each}}
         </table>
