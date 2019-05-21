@@ -4,21 +4,17 @@ var bodyParser = require('body-parser');
 
 var app = express();
 var handlebars = require('express-handlebars').create({defaultLayout: 'main'});
-var path = require('path');
 
 app.engine('handlebars', handlebars.engine);
 app.use(bodyParser.urlencoded({extended:true}));
-app.use(bodyParser.json());
+//app.use(bodyParser.json());
 app.use('/static', express.static('public'));
 app.set('view engine', 'handlebars');
 app.set('port', process.argv[2]);
 app.set('mysql', mysql);
-app.use('/', express.static('public'));
-app.use(express.static(__dirname + '/public'));
 app.use('/patients', require('./patients.js'));
 app.use('/employees', require('./employees.js'));
-const publicPath = path.join(__dirname, '../public');
-app.use('/', express.static(publicPath));
+app.use('/', express.static('public'));
 
 // Home page
 app.get('/', function(req,res){
@@ -39,4 +35,3 @@ app.use(function(err, req, res, next){
 app.listen(app.get('port'), function(){
   console.log('Express started on http://localhost:' + app.get('port') + '; press Ctrl-C to terminate.');
 });
-
