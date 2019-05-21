@@ -1,21 +1,25 @@
-<h1>Sacred Heart Hospital Admin Portal</h1>
-<h2>The <i>best</i> in the world at something!</h2>
-<br>
-{{!-- <button onclick="window.location.href='SHHViewAllPatients.html';"><strong>View Current Patients</strong></button> --}}
-<a href="/patients" class="btn btn-primary">View Current Patients</a>
-<br>
-<button onclick="window.location.href='SHHPatientManagement.html';"><strong>Create/Edit Patient Listings</strong></button>
-<br>
-<br>
-{{!-- <button onclick="window.location.href='SHHViewAllEmployees.html';"><strong>View Current Employees</strong></button> --}}
-<a href="/employees" class="btn btn-primary">View Current Employees</a>
-<br>
-<button onclick="window.location.href='SHHEmployeeManagement.html';"><strong>Create/Edit Employee Listings</strong></button>
-<br>
-<br>
+<div class="container-fluid">
+    <div class="jumbotron">
+        <div id="pageHeader" class="container">
+            <div class="page-header">
+                <h1><strong>Sacred Heart Hospital Admin Portal</strong></h1>
+            </div>
+            <h2><strong>The <i>best</i> in the world at something!</strong></h2>
+        </div>
+    </div>
+</div>
 
-{{!-- <button onclick="window.location.href='SHHViewAllTreatments.html';"><strong>View Current Treatments</strong></button> --}}
-<a href="/treatments" class="btn btn-primary">View Current Treatment</a>
-<br>
-<button onclick="window.location.href='SHHTreatmentManagement.html';"><strong>Create/Edit Treatment Listings</strong></button>
-<br>
+<div class="container">
+    <a href="/patients" class="btn btn-primary"><strong>View Current Patients</strong></a>
+    <!-- <a href="/views/SHHViewAllPatients.handlebars" class="btn btn-primary"><strong>Create/Edit Patient Listings</strong></a> -->
+</div>
+
+<div class="container">
+    <a href="/employees" class="btn btn-primary"><strong>View Current employees</strong></a>
+    <!-- <a href="/views/SHHViewAllEmployees.handlebars" class="btn btn-primary"><strong>Create/Edit Employee Listings</strong></a> -->
+</div>
+
+<div class="container">
+    <a href="/treatments" class="btn btn-primary"><strong>View Current Treatments</strong></a>
+    <!-- <a href="/views/SHHViewAllTreatments.handlebars" class="btn btn-primary"><strong>Create/Edit Treatment Listings</strong></a> -->
+</div>
