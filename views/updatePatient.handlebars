@@ -1,0 +1,22 @@
+<html>
+    <div class="container">
+        <h1>Update {{patient.First_Name}} {{patient.Last_Name}}:</h1>
+        <form id="updatePatient" action="/patients/update/id={{patient.ID}}" method="post">
+            First name: <input type="text" name="First_Name" value="{{patient.First_Name}}"><br>
+            Last name: <input type="text" name="Lase_Name" value="{{patient.Last-Name}}"><br>
+            Date of Birth: <input type="date" name="DOB" value="{{patient.DOB}}"><br>
+            Insured: <select name="Insured" id="insured-selector">
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select><br>
+            Chief Complaint: <input type="text" name="Chief_Complaint" value="{{patient.Chief_Complaint}}"><br>
+            Treatment Paid: <select name="Treatment_Paid" id="treatmen-paid-selector">
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
+        </form>
+        <button onclick="updatePatient({{patient.ID}})">Update</button>
+        <script defer>selectInsured({{patient.Insured}});</script>
+        <script defer>selectPaid({{patient.Treatment_Paid}});</script>
+    </div>
+</html>

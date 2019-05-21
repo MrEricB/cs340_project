@@ -1,0 +1,23 @@
+<html>
+    <div class="container">
+        <h1>Update {{employee.First_Name}} {{employee.Last_Name}}:</h1>
+        <form id="updateEmployee" action="/employee/update/id={{employee.ID}}" method="post">
+            First name: <input type="text" name="First_Name" value="{{employee.First_Name}}"><br>
+            Last name: <input type="text" name="Last_Name" value="{{employee.Last-Name}}"><br>
+            Salary: <input type="number" name="Salary" value="{{employee.Salary}}"><br>
+            Employee Type: <select name="Employee_Type" id="employee-type-selector">
+                {{#each employee_types}}
+                <option value="{{ID}}">{{Employee_Type}}</option>
+                {{/each}}
+            </select><br>
+            Department: <select name="Department_ID" id="department-selector">
+                {{#each departments}}
+                <option value="{{ID}}">{{Department_Name}}</option>
+                {{/each}}
+            </select>
+        </form>
+        <button onclick="updateEmployee({{employee.ID}})">Update</button>
+        <script defer>selectEmployeeType({{employee.Employee_Type_ID}});</script>
+        <script defer>selectDepartment({{employee.Department_ID}});</script>
+    </div>
+</html>
