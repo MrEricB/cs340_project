@@ -3,7 +3,7 @@
         <div class="jumbotron">
             <div id="pageHeader" class="container">
                 <div class="page-header">
-                    <h1><strong>Sacred Heart Hospital Employee: {{results.employee.First_Name}} {{results.employee.Last_Name}}</strong></h1>
+                    <h1><strong>Sacred Heart Hospital Employee: {{employee.First_Name}} {{employee.Last_Name}}</strong></h1>
                 </div>
                 <h2><strong>Edit/Delete Employee Listing</strong></h2>
             </div>
@@ -27,10 +27,10 @@
                         <th class="text-center">Salary</th>
                     </tr>
                     <tr>
-                        <td class="text-center">{{results.employee.First_Name}} {{results.Last_Name}}</td>
-                        <td class="text-center">{{results.employee.Department_Name}}</td>
-                        <td class="text-center">{{results.employee.Employee_Type}}</td>
-                        <td class="text-center">{{results.employee.Salary}}</td>
+                        <td class="text-center">{{employee.First_Name}} {{employee.Last_Name}}</td>
+                        <td class="text-center">{{employee.Department_Name}}</td>
+                        <td class="text-center">{{employee.Employee_Type}}</td>
+                        <td class="text-center">{{employee.Salary}}</td>
                     </tr>
                 </table>
             </div>
@@ -41,11 +41,12 @@
                 <table class="table table-bordered table-striped table-hover">
                     <tr>
                         <th class="text-center">Current Patients</th>
+                        <th></th>
                     </tr>
                     {{#each patients}}
                     <tr>
-                        <td class="text-center">{{this.First_Name}} {{this.Last_Name}}</td>
-                        <td class="text-center"><a class="btn btn-info" href="/patients/id={{this.ID}}">View Details</a></td>
+                        <td class="text-center">{{First_Name}} {{Last_Name}}</td>
+                        <td class="text-center"><a class="btn btn-info" href="/patients/id={{ID}}">View Details</a></td>
                     </tr>
                     {{/each}}
                 </table>
