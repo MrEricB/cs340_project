@@ -3,7 +3,7 @@
         <div class="jumbotron">
             <div id="pageHeader" class="container">
                 <div class="page-header">
-                    <h1><strong>Sacred Heart Hospital Patient: {{results.patient.First_Name}} {{results.patient.Last_Name}}</strong></h1>
+                    <h1><strong>Sacred Heart Hospital Patient: {{patient.First_Name}} {{patient.Last_Name}}</strong></h1>
                 </div>
                 <h2><strong>Edit/Delete Patient Listing</strong></h2>
             </div>
@@ -28,11 +28,11 @@
                         <th class="text-center">Bill Paid</th>
                     </tr>
                     <tr>
-                        <td class="text-center">{{results.patient.First_Name}} {{results.patient.Last_Name}}</td>
-                        <td class="text-center">{{results.patient.DOB}}</td>
-                        <td class="text-center">{{results.patient.Chief_Complaint}}</td>
-                        <td class="text-center">{{results.patient.Insured}}</td>
-                        <td class="text-center">{{results.patient.Treatment_Paid}}</td>
+                        <td class="text-center">{{patient.First_Name}} {{patient.Last_Name}}</td>
+                        <td class="text-center">{{patient.DOB}}</td>
+                        <td class="text-center">{{patient.Chief_Complaint}}</td>
+                        <td class="text-center">{{patient.Insured}}</td>
+                        <td class="text-center">{{patient.Treatment_Paid}}</td>
                     </tr>
                 </table>
             </div>
@@ -44,6 +44,7 @@
                 <table class="table table-bordered table-striped table-hover">
                     <tr>
                         <th class="text-center">Treatments Received</th>
+                        <th></th>
                     </tr>
                     {{#each treatments}}
                     <tr>
@@ -59,6 +60,7 @@
                 <table class="table table-bordered table-striped table-hover">
                     <tr>
                         <th class="text-center">Attending Physicians</th>
+                        <th></th>
                     </tr>
                     {{#each doctors}}
                     <tr>
