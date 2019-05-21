@@ -21,7 +21,7 @@
             Last name: <input type="text" name="Last_Name"><br>
             Date of Birth: <input type="date" name="DOB"><br>
             Chief Complaint: <input type="text" name="Chief_Complaint"><br>
-            Insured: <select>
+            Insured: <select name="Insured">
                 <option value="1">Yes</option>
                 <option value="0">No</option>
             </select>
@@ -36,12 +36,13 @@
                     <tr>
                         <th class="text-center">Patient Name</th>
                         <th class="text-center">Chief Complaint</th>
+                        <th></th>
                     </tr>
-                    {{#each results}}
+                    {{#each patients}}
                     <tr>
-                        <td class="text-center">{{this.First_Name}} {{this.Last_Name}}</td>
-                        <td class="text-center">{{this.Chief_Complaint}}</td>
-                        <td class="text-center"><a class="btn btn-info" href="/patients/id={{this.ID}}">View Details</a></td>
+                        <td class="text-center">{{First_Name}} {{Last_Name}}</td>
+                        <td class="text-center">{{Chief_Complaint}}</td>
+                        <td class="text-center"><a class="btn btn-info" href="/patients/id={{ID}}">View Details</a></td>
                     </tr>
                     {{/each}}
                 </table>
