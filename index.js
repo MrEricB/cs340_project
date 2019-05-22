@@ -40,16 +40,16 @@ app.get('/patients', function(req, res){
   });
 });
 // get specific patient
-// TODO: need to fix in mustache file where insured is 1 or 0 should be yes or no, same with paid
 app.get('/patients/id=:id', function(req, res){
   var id = req.params.id;
   var sql = "SELECT * FROM Patients WHERE ID=(?);" // gets all patients info
   // get all patients doctors
-  var sql_2 = "SELECT e.ID, e.First_Name, e.Last_Name, d.Department_Name FROM Patients p INNER JOIN Doctor_Patient dp ON p.ID = dp.Patient_ID INNER JOIN Employees e ON dp.Employee_id=e.ID INNER JOIN Department d ON e.Department_ID=d.ID WHERE p.ID=(?)"; 
+  var sql_2 = "SELECT e.ID, e.First_Name, e.Last_Name, d.Department_Name, p.ID as PID FROM Patients p INNER JOIN Doctor_Patient dp ON p.ID = dp.Patient_ID INNER JOIN Employees e ON dp.Employee_id=e.ID INNER JOIN Department d ON e.Department_ID=d.ID WHERE p.ID=(?)"; 
   // get all patients treatments 
-  var sql_3 = "SELECT t.ID, t.Treatment_Type, t.Insured_Price, t.Uninsured_Price FROM Patients p INNER JOIN Patient_Treatment pt ON p.ID=pt.Patient_ID INNER JOIN Treatments t ON pt.Treatment_ID=t.id WHERE p.ID=(?)"; 
+  var sql_3 = "SELECT t.ID, t.Treatment_Type, t.Insured_Price, t.Uninsured_Price, p.ID as PID FROM Patients p INNER JOIN Patient_Treatment pt ON p.ID=pt.Patient_ID INNER JOIN Treatments t ON pt.Treatment_ID=t.id WHERE p.ID=(?)"; 
   
   var context = {};
+  // get patient
   mysql.pool.query(sql,[id], function(err, rows, feilds){
     if(err){
       next(err);
@@ -58,7 +58,8 @@ app.get('/patients/id=:id', function(req, res){
     test = JSON.stringify(rows);
     test = JSON.parse(test);
     context.results = test[0];
-
+    
+    // get doctors
     mysql.pool.query(sql_2,[id], function(err, rows, feilds){
       if(err){
         next(err);
@@ -68,7 +69,7 @@ app.get('/patients/id=:id', function(req, res){
       test = JSON.parse(test);
       context.doctors = test;
 
-
+      //get treatments
       mysql.pool.query(sql_3,[id], function(err, rows, feilds){
         if(err){
           next(err);
@@ -134,6 +135,36 @@ app.post('/editPatient', function(req, res){
     res.redirect('/patients');
   });
 
+});
+
+//remove treatment from patient
+app.post('/removeTreatmentPatient/pid=:pid&tid=:tid', function(req, res){
+  var pid = req.params.pid;
+  var tid = req.params.tid;
+  var sql = "DELETE FROM Patient_Treatment WHERE Patient_ID=(?) AND Treatment_ID=(?)";
+  mysql.pool.query(sql, [pid,tid], function(err, rows, feilds){
+    if(err){
+      next(err);
+      return;
+    }
+    res.redirect('/patients/id='+pid);
+  });
+});
+
+//remove doctor from treatment
+app.post('/removeDoctorPatient/pid=:pid&did=:did', function(req, res){
+  var pid = req.params.pid;
+  var did = req.params.did;
+  var sql = "DELETE FROM Doctor_Patient WHERE Employee_ID=(?) AND Patient_ID=(?)";
+  mysql.pool.query(sql, [did,pid], function(err, rows, feilds){
+    if(err){
+      next(err);
+      return;
+    }
+    console.log(pid, did);
+    res.redirect('/patients/id='+pid);
+    // res.redirect('/');
+  });
 });
 
 
@@ -205,6 +236,7 @@ app.post('/createTreatment', function(req, res){
   });
 
 });
+
 //edit treatment
 app.get('/editTreatment/id=:id', function(req, res){
   var context = {};
@@ -218,6 +250,7 @@ app.get('/editTreatment/id=:id', function(req, res){
     test = JSON.stringify(rows);
     test = JSON.parse(test);
     context.results = test[0];
+    // console.log(context);
     res.render('editTreatment', context)
   });
 });
@@ -481,7 +514,7 @@ app.get('/editEmployee/id=:id', function(req, res){
   var sql_1 ="SELECT e.ID, e.First_Name, e.Last_Name, e.Salary, e.Employee_Type_ID, e.Department_ID, d.Department_Name, et.Employee_Type , d.ID as did, et.id as etid FROM Employees e INNER JOIN Department d ON e.Department_ID=d.ID INNER JOIN Employee_Type et ON e.Employee_Type_ID=et.ID WHERE e.ID=(?)";
   var sql_2 = "SELECT * FROM Employee_Type"
   var sql_3 = "SELECT * FROM Department"
-
+  // get employee
   mysql.pool.query(sql_1,[eid], function(err, rows, feilds){
     if(err){
       next(err);
@@ -490,7 +523,7 @@ app.get('/editEmployee/id=:id', function(req, res){
     test = JSON.stringify(rows);
     test = JSON.parse(test);
     context.results = test[0];
-
+// get employee types
     mysql.pool.query(sql_2, function(err, rows, feilds){
       if(err){
         next(err);
@@ -499,7 +532,14 @@ app.get('/editEmployee/id=:id', function(req, res){
       test = JSON.stringify(rows);
       test = JSON.parse(test);
       context.employee_type = test;
-
+      context.employee_type.forEach(el => {
+        if(el.ID === context.results.etid){
+          el.current = 1;
+        } else {
+          el.current = 0;
+        }
+      });
+// get departments
       mysql.pool.query(sql_3, function(err, rows, feilds){
         if(err){
           next(err);
@@ -508,8 +548,14 @@ app.get('/editEmployee/id=:id', function(req, res){
         test = JSON.stringify(rows);
         test = JSON.parse(test);
         context.department = test;
-        console.log(context);
-        console.log("****************")
+        context.department.forEach(el => {
+          if(el.ID === context.results.did){
+            el.current = 1;
+          } else {
+            el.current = 0;
+          }
+        });
+        // console.log(context);
         res.render('editEmployee', context)
       });
     });

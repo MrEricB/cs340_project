@@ -21,22 +21,24 @@
 
 
     Department:<br>
-  <select name="department">
-      {{!-- <option value="{{results.Department_ID}}" selected="selected">{{results.Department_Name}}</option> --}}
-      {{#each department}}
-    <option value="{{this.ID}}">{{this.Department_Name}}</option>
-    {{/each}}
-  </select>
+    {{#each department}}
+    {{#if this.current}}
+  <input type="radio" name="department" value="{{this.ID}}" checked="checked">{{this.Department_Name}}<br>  
+    {{else}}
+  <input type="radio" name="department" value="{{this.ID}}">{{this.Department_Name}} <br>
+    {{/if}}
+  {{/each}}
   <br>
 
 
   Employee Type:<br>
-  <select name="employee_type">
-      {{!-- <option value="" selected="selected">{{results.Employee_Type}}</option> --}}
-      {{#each employee_type}}
-    <option value="{{this.ID}}">{{this.Employee_Type}}</option>
-    {{/each}}
-  </select>
+  {{#each employee_type}}
+    {{#if this.current}}
+    <input type="radio" name="employee_type" value="{{this.this.ID}}" checked="checked">{{this.Employee_Type}}<br>  
+    {{else}}
+    <input type="radio" name="employee_type" value="{{this.this.ID}}">{{this.Employee_Type}}<br>
+    {{/if}}
+  {{/each}}
   <br>
   <br>
   <input type="submit" value="Submit">

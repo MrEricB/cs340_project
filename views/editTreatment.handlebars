@@ -13,11 +13,13 @@
   <input type="text" name="treatment_type" value="{{results.Treatment_Type}}">
   <br>
   Insurance Covered:<br>
-  <select name="insurance_cover">
-    <option value="1">Yes</option>
-    <option value="0">No</option>
-  </select>
-  <br>
+  {{#if results.Insurance_covers}}
+    <input type="radio" name="insurance_cover" value="1" checked="checked"> Yes<br>
+    <input type="radio" name="insurance_cover" value="0"> No<br>
+  {{else}}
+        <input type="radio" name="insurance_cover" value="1"> Yes<br>
+    <input type="radio" name="insurance_cover" value="0" checked="checked"> No<br>
+  {{/if}}
     Insurance Price:<br>
   <input type="text" name="insurance_price" value="{{results.Insured_Price}}">
 <br>

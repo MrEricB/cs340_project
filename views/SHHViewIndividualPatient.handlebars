@@ -19,8 +19,16 @@
                 <td>{{results.First_Name}} {{results.Last_Name}}</td>
                 <td>{{results.DOB}}</td>
                 <td>{{results.Chief_Complaint}}</td>
-                <td>{{results.Insured}}</td>
-                <td>{{results.Treatment_Paid}}</td>
+                {{#if results.Insured}}
+                    <td>Yes</td>
+                {{else}}
+                    <td>No</td>
+                {{/if}}
+                {{#if results.Treatment_Paid}}
+                <td>Yes</td>
+                {{else}}
+                <td>No</td>
+                {{/if}}
             </tr>
         </table>
         </table>
@@ -39,7 +47,11 @@
                 <td>{{this.First_Name}} {{this.Last_Name}}</td>
                 <td>{{this.Department_Name}}</td>
                 <td><a href="/allemployees/id={{this.ID}}" class="btn btn-info">Details</a></td>
-                <td><a href="#" class="btn btn-danger">Remove (Needs Implemented)</a></td>
+                <td>
+                <form action="/removeDoctorPatient/pid={{this.PID}}&did={{this.ID}}" method="POST">
+                    <input type="submit" value="Remove Doctor" class="btn btn-danger">
+                </form>
+                </td>
 
             </tr>
             {{/each}}
@@ -58,7 +70,11 @@
             <tr>
                 <td>{{this.Treatment_Type}}</td>
                 <td><a href="/treatments/{{this.ID}}" class="btn btn-info">Details</a></td>
-                <td><a href="#" class="btn btn-danger">Remove (Needs Implemented)</a></td>
+                <td>
+                <form action="/removeTreatmentPatient/pid={{this.PID}}&tid={{this.ID}}" method="POST">
+                    <input type="submit" value="Remove Treatement" class="btn btn-danger">
+                </form>
+                </td>
             </tr>
             {{/each}}
         </table>
