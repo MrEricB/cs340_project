@@ -1,9 +1,9 @@
-<h1>Sacred Heart Hospital Employee Type List</h1>
+<h1>Sacred Heart Hospital Employee Type List: </h1>
         <br>
         <a href="/" class="btn btn-primary">Return to Portal</a>
         <br>
         <br>
-        <button onclick="window.location.href='SHHTreatmentManagement.html';"><strong>Create/Edit Treatment Listings</strong></button>
+        <a href="/createEmployeeType" class="btn btn-primary">Add Type</a>
         <br>
         <br>
         <table>
@@ -13,7 +13,13 @@
             {{#each results}}
             <tr>
                 <td>{{this.Employee_Type}}</td>
-                <td><a href="#" class="btn btn-danger">Delete</a></td>
+                {{!-- <td><a href="#" class="btn btn-info">Edit (not implemented)</a></td>
+                <td> --}}
+                {{!-- <form action="/deleteEmployee" method="POST">
+                    <input type="hidden" name="eid" value="{{this.ID}}">
+                    <input type="submit" value="Delete This" class="btn btn-danger">
+                </form> --}}
+                </td>
             </tr>
             {{/each}}
         </table>

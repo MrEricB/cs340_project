@@ -15,9 +15,14 @@
             <tr>
                 <td>{{this.First_Name}} {{this.Last_Name}}</td>
                 <td>{{this.Chief_Complaint}}</td>
-                <td><a href="/patients/id={{this.ID}}" class="btn btn-info">View Details</a></td>
-                <td><a href="#" class="btn btn-danger">Delete</a></td>
+                <td><a href="/patients/id={{this.ID}}" class="btn btn-secondary">View Details</a></td>
+                <td><a href="/editPatient/id={{this.ID}}" class="btn btn-info">Edit</a></td>
+                <td>
+                <form action="/deletePatient" method="POST">
+                    <input type="hidden" name="pid" value="{{this.ID}}">
+                    <input type="submit" value="Delete" class="btn btn-danger">
+                </form>
+                </td>
 
             </tr>
             {{/each}}
-        </table>

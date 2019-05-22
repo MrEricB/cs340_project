@@ -1,14 +1,17 @@
 <h1>Sacred Heart Hospital Patient: {{results.First_Name}} {{results.Last_Name}}</h1>
         <br>
-        <button onclick="window.location.href='SHHPatientManagement.html';"><strong>Edit Patient Listing</strong></button>
+        <a href="/patients" class="btn btn-primary">All Patients</a>
         <br>
+        <a href="/" class="btn btn-primary">Main Page</a>
+        <br>
+        {{!-- <a href="#" class="btn btn-info">Update Patient: {{results.First_Name}} {{results.Last_Name}} (Needs Implemented)</a> --}}
+        {{!-- <br> --}}
         <br>
         <table>
             <tr>
                 <th>Patient Name</th>
                 <th>Date of Birth</th>
                 <th>Chief Complaint</th>
-                <th>Treatment</th>
                 <th>Insured</th>
                 <th>Bill Paid</th>
             </tr>
@@ -16,13 +19,46 @@
                 <td>{{results.First_Name}} {{results.Last_Name}}</td>
                 <td>{{results.DOB}}</td>
                 <td>{{results.Chief_Complaint}}</td>
-                
-                {{!-- TODO: add treatments --}}
-                <td>Appendectomy</td>
-
                 <td>{{results.Insured}}</td>
                 <td>{{results.Treatment_Paid}}</td>
-                <td><a href="/patients/treatments/id={{results.ID}}&name={{results.First_Name}}" class="btn btn-info">View Treatments</a></td>
-                <td><a href="/patients/doctors/id={{results.ID}}&name={{results.First_Name}}" class="btn btn-info">View Doctors</a></td>
             </tr>
+        </table>
+        </table>
+        <h3>Doctors:</h3>
+        <a href="/addDoctor/id={{results.ID}}" class="btn btn-primary"> Add Doctor</a>
+        <table>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Department</th>
+            </tr>
+            </thead>
+
+            {{#each doctors}}
+            <tr>
+                <td>{{this.First_Name}} {{this.Last_Name}}</td>
+                <td>{{this.Department_Name}}</td>
+                <td><a href="/allemployees/id={{this.ID}}" class="btn btn-info">Details</a></td>
+                <td><a href="#" class="btn btn-danger">Remove (Needs Implemented)</a></td>
+
+            </tr>
+            {{/each}}
+        </table>
+        <br>
+        <h3>Treatments:</h3>
+        <a href="/addTreatment/id={{results.ID}}" class="btn btn-primary"> Add Treatment</a>
+       <table>
+            <thead>
+            <tr>
+                <th>Treatment</th>
+            </tr>
+            </thead>
+
+            {{#each treatments}}
+            <tr>
+                <td>{{this.Treatment_Type}}</td>
+                <td><a href="/treatments/{{this.ID}}" class="btn btn-info">Details</a></td>
+                <td><a href="#" class="btn btn-danger">Remove (Needs Implemented)</a></td>
+            </tr>
+            {{/each}}
         </table>

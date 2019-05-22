@@ -1,0 +1,23 @@
+ <h1>Sacred Heart Hospital Treatment</h1>
+        <br>
+       <a href="/" class="btn btn-primary">Return to Portal</a>
+        <br>
+       <a href="/Treatments" class="btn btn-primary">View All Treatments</a>
+       <br>
+        <br>
+        <br>
+        <table>
+            <tr>
+                <th>Treatment Name</th>
+                <th>Insurance Covers</th>
+                <th>Insured Price</th>
+                <th>Uninsured Price</th>
+            </tr>
+            <tr>
+                <td>{{results.Treatment_Type}}</td>
+                <td>{{results.Insurance_covers}}</td>
+                <td>${{results.Insured_Price}}</td>
+                <td>${{results.Uninsured_Price}}</td>
+                {{!-- <td><button onclick="window.location.href='SHHViewIndividualTreatment.html';">View Details</button></td> --}}
+            </tr>
+        </table>

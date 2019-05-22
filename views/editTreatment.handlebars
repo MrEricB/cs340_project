@@ -1,0 +1,29 @@
+<h1>Sacred Heart Hospital Edit Treatment</h1>
+        <br>
+        <a href="/" class="btn btn-primary">Return to Home Page</a>
+        <br>
+        <br>
+        <a href="/treatments" class="btn btn-primary">Return to All Treatments</a>
+        <br>
+        <br>
+    
+<form action="/editTreatments" method="POST">
+    <input type="hidden" name="tid" value="{{results.ID}}">
+  Treatment Name:<br>
+  <input type="text" name="treatment_type" value="{{results.Treatment_Type}}">
+  <br>
+  Insurance Covered:<br>
+  <select name="insurance_cover">
+    <option value="1">Yes</option>
+    <option value="0">No</option>
+  </select>
+  <br>
+    Insurance Price:<br>
+  <input type="text" name="insurance_price" value="{{results.Insured_Price}}">
+<br>
+    Uninsured Price:<br>
+  <input type="text" name="uninsurance_price" value="{{results.Uninsured_Price}}">
+  <br>
+
+  <input type="submit" value="Submit">
+</form>

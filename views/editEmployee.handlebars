@@ -1,0 +1,43 @@
+<h1>Sacred Heart Hospital Edit Employee</h1>
+        <br>
+        <a href="/" class="btn btn-primary">Return to Home Page</a>
+        <br>
+        <br>
+        <a href="/employees" class="btn btn-primary">Return to Employees Page</a>
+        <br>
+        <br>
+    
+<form action="/editEmployee" method="POST">
+<input type="hidden" name="eid" value="{{results.ID}}">
+  First name:<br>
+  <input type="text" name="firstname" value="{{results.First_Name}}">
+  <br>
+  Last name:<br>
+  <input type="text" name="lastname" value="{{results.Last_Name}}">
+  <br>
+    Salary:<br>
+  <input type="text" name="salary" value="{{results.Salary}}">
+<br>
+
+
+    Department:<br>
+  <select name="department">
+      {{!-- <option value="{{results.Department_ID}}" selected="selected">{{results.Department_Name}}</option> --}}
+      {{#each department}}
+    <option value="{{this.ID}}">{{this.Department_Name}}</option>
+    {{/each}}
+  </select>
+  <br>
+
+
+  Employee Type:<br>
+  <select name="employee_type">
+      {{!-- <option value="" selected="selected">{{results.Employee_Type}}</option> --}}
+      {{#each employee_type}}
+    <option value="{{this.ID}}">{{this.Employee_Type}}</option>
+    {{/each}}
+  </select>
+  <br>
+  <br>
+  <input type="submit" value="Submit">
+</form>

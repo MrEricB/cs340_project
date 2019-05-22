@@ -19,37 +19,9 @@ app.use(express.static(__dirname + '/public'));
 app.get('/', function(req,res){
   res.render('home')
 });
-// get all employees
-app.get('/employees', function(req, res){
-  var context = {};
-  var sql = "SELECT * FROM Employees INNER JOIN Department ON Employees.Department_ID = Department.ID"
-  mysql.pool.query(sql, function(err, rows, feilds){
-    if(err){
-      next(err);
-      return;
-    }
-    test = JSON.stringify(rows);
-    test = JSON.parse(test);
-    context.results = test;
-    res.render('SHHViewAllEmployees', context);
-  });
-});
-// get specific employee
-app.get('/allemployees/id=:id', function(req, res){
-  var id = req.params.id;
-  var sql = "SELECT * FROM Employees INNER JOIN Employee_Type ON Employees.Employee_Type_ID = Employee_Type.ID INNER JOIN Department ON Employees.Department_ID = Department.ID WHERE Employees.ID=(?)"  
-  var context = {};
-  mysql.pool.query(sql,[id], function(err, rows, feilds){
-    if(err){
-      next(err);
-      return;
-    }
-    test = JSON.stringify(rows);
-    test = JSON.parse(test);
-    context.results = test[0];
-    res.render('SHHViewIndividualEmployee', context);
-  });
-
+//main patient page
+app.get('/patienthome', function(req, res){
+  res.render('patienthome')
 });
 // get all patients
 app.get('/patients', function(req, res){
@@ -67,12 +39,16 @@ app.get('/patients', function(req, res){
     res.render('SHHViewAllPatients', context);
   });
 });
-
 // get specific patient
 // TODO: need to fix in mustache file where insured is 1 or 0 should be yes or no, same with paid
 app.get('/patients/id=:id', function(req, res){
   var id = req.params.id;
-  var sql = "SELECT * FROM Patients WHERE ID=(?)"  
+  var sql = "SELECT * FROM Patients WHERE ID=(?);" // gets all patients info
+  // get all patients doctors
+  var sql_2 = "SELECT e.ID, e.First_Name, e.Last_Name, d.Department_Name FROM Patients p INNER JOIN Doctor_Patient dp ON p.ID = dp.Patient_ID INNER JOIN Employees e ON dp.Employee_id=e.ID INNER JOIN Department d ON e.Department_ID=d.ID WHERE p.ID=(?)"; 
+  // get all patients treatments 
+  var sql_3 = "SELECT t.ID, t.Treatment_Type, t.Insured_Price, t.Uninsured_Price FROM Patients p INNER JOIN Patient_Treatment pt ON p.ID=pt.Patient_ID INNER JOIN Treatments t ON pt.Treatment_ID=t.id WHERE p.ID=(?)"; 
+  
   var context = {};
   mysql.pool.query(sql,[id], function(err, rows, feilds){
     if(err){
@@ -82,10 +58,86 @@ app.get('/patients/id=:id', function(req, res){
     test = JSON.stringify(rows);
     test = JSON.parse(test);
     context.results = test[0];
-    // console.log(context.results)
-    res.render('SHHViewIndividualPatient', context)
+
+    mysql.pool.query(sql_2,[id], function(err, rows, feilds){
+      if(err){
+        next(err);
+        return;
+      }
+      test = JSON.stringify(rows);
+      test = JSON.parse(test);
+      context.doctors = test;
+
+
+      mysql.pool.query(sql_3,[id], function(err, rows, feilds){
+        if(err){
+          next(err);
+          return;
+        }
+        test = JSON.stringify(rows);
+        test = JSON.parse(test);
+        context.treatments = test;
+        // console.log(context);
+        res.render('SHHViewIndividualPatient', context);
+      });
+    });
   });
 });
+// Delete Patient
+app.post('/deletePatient', function(req, res) {
+  //DELETE FROM Patients WHERE ID=:id;
+  var id = req.body.pid;
+  sql = 'DELETE FROM Patients WHERE ID=(?)';
+  mysql.pool.query(sql,[id],function(err, rows){
+    if(err){
+      next(err);
+      return;
+    }
+    res.redirect('/patients');
+  });
+
+});
+// edit patient
+app.get('/editPatient/id=:id', function(req, res){
+  var context = {};
+  var id = req.params.id;
+  var sql = "SELECT * FROM Patients WHERE ID=(?) LIMIT 1";
+  mysql.pool.query(sql, [id], function(err, rows, feilds){
+    if(err){
+      next(err);
+      return;
+    }
+    test = JSON.stringify(rows);
+    test = JSON.parse(test);
+    context.results = test[0];
+    context.results.DOB = context.results.DOB.substring(0, 10);
+    // console.log(context);
+    res.render('editPatient', context)
+  });
+
+});
+app.post('/editPatient', function(req, res){
+  var id = req.body.pid;
+  var firstname = req.body.firstname;
+  var lastname = req.body.lastname;
+  var dob = req.body.dob;
+  var complaint = req.body.chiefcomplaint;
+  var insured = req.body.insured;
+  var paid = req.body.paid;
+
+  var sql = "UPDATE Patients SET First_Name=(?), Last_Name=(?), DOB=(?), Insured=(?), Chief_Complaint=(?), Treatment_Paid=(?)  WHERE Patients.ID = (?) LIMIT 1";
+  mysql.pool.query(sql, [firstname,lastname,dob,insured, complaint, paid, id], function(err, rows, feilds){
+    if(err){
+      next(err);
+      return;
+    }
+    res.redirect('/patients');
+  });
+
+});
+
+
+
 
 // get all treatments
 app.get('/treatments', function(req, res){
@@ -99,51 +151,95 @@ app.get('/treatments', function(req, res){
     test = JSON.stringify(rows);
     test = JSON.parse(test);
     context.results = test;
-    console.log(context);
     res.render('SHHViewAllTreatments', context); 
   });
 });
 
-// get all treatments for a specific patient
-app.get('/patients/treatments/id=:id&name=:name', function(req, res){
-  var id = req.params.id;
-  var name = req.params.name;
-  var sql = "SELECT t.Treatment_Type, t.Insured_Price, t.Uninsured_Price FROM Patients p INNER JOIN Patient_Treatment pt ON p.ID=pt.Patient_ID INNER JOIN Treatments t ON pt.Treatment_ID=t.id WHERE p.ID=(?)"  
+app.get('/treatments/:id', function(req, res){
   var context = {};
-  mysql.pool.query(sql,[id], function(err, rows, feilds){
+  var id = req.params.id;
+  var sql = "SELECT * FROM Treatments WHERE ID=?";
+  mysql.pool.query(sql, [id], function(err, rows, feilds){
     if(err){
       next(err);
       return;
     }
     test = JSON.stringify(rows);
     test = JSON.parse(test);
-    context.results = test;
-    context.name = name;
-    context.id = id;
-    console.log(context.results);
-    res.render('patientsTreatments', context);
+    context.results = test[0];
+    console.log(context);
+    res.render('individualTreatment', context); 
   });
 });
 
-// get all doctors for a specific patient
-app.get('/patients/doctors/id=:id&name=:name', function(req, res){
-  var id = req.params.id;
-  var name = req.params.name;
-  var sql = "SELECT e.First_Name, e.Last_Name, d.Department_Name FROM Patients p INNER JOIN Doctor_Patient dp ON p.ID = dp.Patient_ID INNER JOIN Employees e ON dp.Employee_id=e.ID INNER JOIN Department d ON e.Department_ID=d.ID WHERE p.ID=(?)"  
+
+// DELETE Treatment
+app.post('/deleteTreatment', function(req, res){
+  var tid = req.body.tid;
+  var sql = "DELETE FROM Treatments WHERE ID=(?)";
+  mysql.pool.query(sql,[tid],function(err, rows, feilds){
+    if(err){
+      next(err);
+      return;
+    }
+    res.redirect('/treatments');
+  });
+});
+// create Treatment
+app.get('/createTreatment', function(req, res){
+  res.render('createTreatment');
+});
+app.post('/createTreatment', function(req, res){
+  var Treatment_Type = req.body.treatment_type;
+  var Insurance_covers = req.body.insurance_cover;
+  var Insurance_Price = req.body.insurance_price;
+  var Uninsured_Price = req.body.uninsurance_price;
+  //insert into the database
+  var sql = "INSERT INTO `Treatments` (`Treatment_Type`, `Insurance_covers`, `Insured_Price`, `Uninsured_Price`) VALUES (?,?,?,?)";
+  mysql.pool.query(sql,[Treatment_Type, Insurance_covers, Insurance_Price, Uninsured_Price], function(err, rows){
+    if(err){
+      next(err);
+      return;
+    }
+    res.redirect('/treatments');
+  });
+
+});
+//edit treatment
+app.get('/editTreatment/id=:id', function(req, res){
   var context = {};
-  mysql.pool.query(sql,[id], function(err, rows, feilds){
+  var tid = req.params.id;
+  sql ="SELECT * FROM Treatments WHERE ID=(?)";
+  mysql.pool.query(sql,[tid], function(err, rows){
     if(err){
       next(err);
       return;
     }
     test = JSON.stringify(rows);
     test = JSON.parse(test);
-    context.results = test;
-    context.name = name;
-    context.id = id;
-    res.render('patientsDoctors', context);
+    context.results = test[0];
+    res.render('editTreatment', context)
   });
 });
+app.post('/editTreatments', function(req, res){
+  var treat_type = req.body.treatment_type;
+  var insured = req.body.insurance_cover;
+  var ins_price = req.body.insurance_price;
+  var unins_price = req.body.uninsurance_price;
+  var tid = req.body.tid;
+  console.log(req.body);
+  var sql = "UPDATE `Treatments` SET `Treatment_Type` = (?),`Insurance_covers`=(?), `Insured_Price`=(?), `Uninsured_Price`=(?) WHERE `Treatments`.`ID` = (?)";
+  mysql.pool.query(sql, [treat_type, insured, ins_price, unins_price, tid], function(err, rows, feilds){
+    if(err){
+      next(err);
+      return;
+    }
+    res.redirect('/treatments'); 
+  });
+})
+
+
+
 
 /** Add treatment to patient **/
 app.get('/addTreatment/id=:id', function(req, res){
@@ -176,7 +272,7 @@ app.post('/addTreatment/id=:id', function(req, res){
       return;
     }
     
-    res.redirect('/patients')
+    res.redirect('/patients/id='+pid);
   });
 
 
@@ -201,7 +297,6 @@ app.get("/addDoctor/id=:id", function(req, res){
       res.render('addDoctor', context)
       });
 });
-
 app.post('/addDoctor/id=:id', function(req, res){
   var pid = req.body.patient;
   var eid = req.body.doctor;
@@ -270,6 +365,43 @@ app.post('/patients', function(req, res){
 });
 
 
+// main hosptial page
+app.get('/hostpitalManagment', function(req, res){
+ res.render('hostpitalManagment');
+});
+// get all employees
+app.get('/employees', function(req, res){
+  var context = {};
+  var sql = "SELECT e.ID, e.First_Name, e.Last_Name, d.Department_Name FROM Employees e INNER JOIN Department d ON e.Department_ID=d.id"
+  mysql.pool.query(sql, function(err, rows, feilds){
+    if(err){
+      next(err);
+      return;
+    }
+    test = JSON.stringify(rows);
+    test = JSON.parse(test);
+    context.results = test;
+    // console.log(context);
+    res.render('SHHViewAllEmployees', context);
+  });
+});
+// get specific employee
+app.get('/allemployees/id=:id', function(req, res){
+  var id = req.params.id;
+  var sql = "SELECT * FROM Employees INNER JOIN Employee_Type ON Employees.Employee_Type_ID = Employee_Type.ID INNER JOIN Department ON Employees.Department_ID = Department.ID WHERE Employees.ID=(?)"  
+  var context = {};
+  mysql.pool.query(sql,[id], function(err, rows, feilds){
+    if(err){
+      next(err);
+      return;
+    }
+    test = JSON.stringify(rows);
+    test = JSON.parse(test);
+    context.results = test[0];
+    res.render('SHHViewIndividualEmployee', context);
+  });
+});
+
 // create employee
 app.get('/createEmployee', function(req, res){
   var context = {}
@@ -309,7 +441,6 @@ app.get('/createEmployee', function(req, res){
     });
   });
 });
-
 app.post('/createEmployee', function(req, res){
   var First_Name = req.body.firstname;
   var Last_Name = req.body.lastname;
@@ -329,33 +460,124 @@ app.post('/createEmployee', function(req, res){
   });
 
 });
-
-// create Treatment
-app.get('/createTreatment', function(req, res){
-  res.render('createTreatment');
-});
-
-app.post('/createTreatment', function(req, res){
-  var Treatment_Type = req.body.treatment_type;
-  var Insurance_covers = req.body.insurance_cover;
-  var Insurance_Price = req.body.insurance_price;
-  var Uninsured_Price = req.body.uninsurance_price;
-
-  console.log(req.body);
-  //insert into the database
-  var sql = "INSERT INTO `Treatments` (`Treatment_Type`, `Insurance_covers`, `Insured_Price`, `Uninsured_Price`) VALUES (?,?,?,?)";
-  mysql.pool.query(sql,[Treatment_Type, Insurance_covers, Insurance_Price, Uninsured_Price], function(err, rows){
+// Delete Employee
+app.post('/deleteEmployee', function(req, res){
+  var eid = req.body.eid;
+  var sql = "DELETE FROM Employees WHERE ID=(?)";
+  mysql.pool.query(sql,[eid],function(err, rows, feilds){
     if(err){
       next(err);
       return;
     }
-    res.redirect('/treatments');
+    console.log(eid);
+    res.redirect('/employees');
   });
+});
 
+// edit employee
+app.get('/editEmployee/id=:id', function(req, res){
+  var context = {};
+  var eid = req.params.id;
+  var sql_1 ="SELECT e.ID, e.First_Name, e.Last_Name, e.Salary, e.Employee_Type_ID, e.Department_ID, d.Department_Name, et.Employee_Type , d.ID as did, et.id as etid FROM Employees e INNER JOIN Department d ON e.Department_ID=d.ID INNER JOIN Employee_Type et ON e.Employee_Type_ID=et.ID WHERE e.ID=(?)";
+  var sql_2 = "SELECT * FROM Employee_Type"
+  var sql_3 = "SELECT * FROM Department"
+
+  mysql.pool.query(sql_1,[eid], function(err, rows, feilds){
+    if(err){
+      next(err);
+      return;
+    }
+    test = JSON.stringify(rows);
+    test = JSON.parse(test);
+    context.results = test[0];
+
+    mysql.pool.query(sql_2, function(err, rows, feilds){
+      if(err){
+        next(err);
+        return;
+      }
+      test = JSON.stringify(rows);
+      test = JSON.parse(test);
+      context.employee_type = test;
+
+      mysql.pool.query(sql_3, function(err, rows, feilds){
+        if(err){
+          next(err);
+          return;
+        }
+        test = JSON.stringify(rows);
+        test = JSON.parse(test);
+        context.department = test;
+        console.log(context);
+        console.log("****************")
+        res.render('editEmployee', context)
+      });
+    });
+  });
+});
+
+// DOES NOT WORK
+app.post('/editEmployee', function(req, res){
+  var First_Name = req.body.firstname;
+  var Last_Name = req.body.lastname;
+  var Salary = req.body.salary;
+  var Employee_Type_ID = req.body.department;
+  var Department_ID = req.body.employee_type;
+  var eid = req.body.eid;
+
+  var sql = "UPDATE `Employees` SET `First_Name` = (?),`Last_Name`=(?), `Salary`=(?), `Employee_Type_ID`=(?), `Department_ID`=(?) WHERE `Employees`.`ID` = (?)";
+  mysql.pool.query(sql, [First_Name, Last_Name, Salary, Employee_Type_ID, Department_ID, eid], function(err, rows, feilds){
+    if(err){
+      next(err);
+      return;
+    }
+    
+    console.log(req.body);
+    res.redirect('/employees'); 
+  });
 });
 
 
-//Don't know if we need this?
+
+
+
+
+
+ 
+// get all departments
+app.get('/departments', function(req, res){
+  var context = {};
+  sql = "SELECT * FROM Department";
+  mysql.pool.query(sql, function(err, rows, feilds){
+    if(err){
+      next(err);
+      return;
+    }
+    test = JSON.stringify(rows);
+    test = JSON.parse(test);
+    context.results = test;
+    res.render('allDepartments', context);
+  });
+
+});
+// create department
+app.get('/createDepartment', function(req, res){
+  res.render('createDepartment');
+});
+app.post('/createDepartment', function(req, res){
+  var Department_Name = req.body.department;
+  var Budget = req.body.budget;
+  //insert into the database
+  var sql = "INSERT INTO `Department` (`Department_Name`, `Budget`) VALUES (?,?)";
+  mysql.pool.query(sql,[Department_Name,Budget], function(err, rows){
+    if(err){
+      next(err);
+      return;
+    }
+    res.redirect('/departments');
+  });
+});
+
 // get all employee_types
 app.get('/employee_types', function(req, res){
   var context = {};
@@ -372,33 +594,22 @@ app.get('/employee_types', function(req, res){
     res.render('SHHViewAllEmployeeType', context); 
   });
 });
-
-//Don't know if we need this?
-// get all patient_treaments
-app.get('/employee_types', function(req, res){
-  var context = {};
-  var sql = "SELECT * FROM Patient_Treatment"
-  mysql.pool.query(sql, function(err, rows, feilds){
+// create employee type
+app.get('/createEmployeeType', function(req, res){
+  res.render('createEmployeeType');
+});
+app.post('/createEmployeeType', function(req, res){
+  var type = req.body.employee_type;
+  //insert into the database
+  var sql = "INSERT INTO `Employee_Type` (`Employee_Type`) VALUES (?)";
+  mysql.pool.query(sql,[type], function(err, rows){
     if(err){
       next(err);
       return;
     }
-    test = JSON.stringify(rows);
-    test = JSON.parse(test);
-    context.results = test;
-    console.log(context);
-    res.render('SHHViewAllEmployeeType', context); 
+    res.redirect('/employee_types');
   });
 });
-
-//Don't know if we need this?
-// get all doctor_patients
-
-//Don't know if we need this?
-// get all departments
-
-//Don't know if we need this?
-// get specific department
 
 app.use(function(req, res){
   res.status(404);

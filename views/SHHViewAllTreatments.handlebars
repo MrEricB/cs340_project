@@ -17,8 +17,13 @@
                 <td>{{this.Treatment_Type}}</td>
                 <td>${{this.Insured_Price}}</td>
                 <td>${{this.Uninsured_Price}}</td>
-                <td><a href="#" class="btn btn-danger">Delete</a></td>
-                {{!-- <td><button onclick="window.location.href='SHHViewIndividualTreatment.html';">View Details</button></td> --}}
+                <td><a href="/editTreatment/id={{this.ID}}" class="btn btn-info">Edit</a></td>
+                <td>
+                <form action="/deleteTreatment" method="POST">
+                    <input type="hidden" name="tid" value="{{this.ID}}">
+                    <input type="submit" value="Delete" class="btn btn-danger">
+                </form>
+                </td>
             </tr>
             {{/each}}
         </table>
