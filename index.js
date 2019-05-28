@@ -137,6 +137,30 @@ app.post('/editPatient', function(req, res){
 
 });
 
+
+//search for patient
+// get as post with render of all patients but change context
+app.post('/patientSearch', function(req, res){
+  var context = {};
+  var searchName = req.body.patient.trim().split(" ");
+  var fname = searchName[0];
+  var lname = searchName[1] || "blank";
+// var fname = 'Dave';
+// var lname = 'Smith'
+  var sql = "SELECT * from Patients WHERE First_Name LIKE '%" + fname + "%' OR Last_Name LIKE '%" + lname + "%' ";
+  mysql.pool.query(sql, [fname, lname], function(err, rows, feilds){
+    if(err){
+      next(err);
+      return;
+    }
+    test = JSON.stringify(rows);
+    test = JSON.parse(test);
+    context.results = test;
+    console.log(fname, lname)
+    res.render('SHHViewAllPatients', context);
+  });
+}); 
+
 //remove treatment from patient
 app.post('/removeTreatmentPatient/pid=:pid&tid=:tid', function(req, res){
   var pid = req.params.pid;

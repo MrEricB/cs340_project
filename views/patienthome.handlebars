@@ -9,4 +9,7 @@
         <a href="/createPatient" class="btn btn-primary">Add Patient</a>
         <br>
         <br>
-        <h3>ADD SEARCH BAR HERE!!!!!!</h3>
+        <form action="/patientSearch" method="POST">
+                <input type="text" placeholder="Find a patient" name="patient">
+                <input type="submit" name="submit" value="Search">
+        </form>
