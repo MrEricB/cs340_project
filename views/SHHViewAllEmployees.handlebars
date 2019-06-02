@@ -17,7 +17,7 @@
                 <td>{{this.First_Name}} {{this.Last_Name}}</td>
                 <td>{{this.Department_Name}}</td>
                 <td><a class="btn btn-secondary" href="/allemployees/id={{this.ID}}">View Details</a></td>
-                <td><a class="btn btn-info" href="/editEmployee/id={{this.ID}}">Edit</a></td>
+                {{!-- <td><a class="btn btn-info" href="/editEmployee/id={{this.ID}}">Edit</a></td> --}}
                 <td>
                     <form action="/deleteEmployee" method="POST">
                         <input type="hidden" name="eid" value="{{this.ID}}">
