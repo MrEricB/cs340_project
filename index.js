@@ -484,7 +484,7 @@ app.post('/createEmployee', function(req, res){
   console.log(req.body);
   //insert into the database
   var sql = "INSERT INTO `Employees` (`First_Name`, `Last_Name`, `Salary`, `Employee_Type_ID`, `Department_ID`) VALUES (?,?,?,?,?)";
-  mysql.pool.query(sql,[First_Name,Last_Name,Salary,Department,Employee_Type], function(err, rows){
+  mysql.pool.query(sql,[First_Name,Last_Name,Salary,Employee_Type, Department], function(err, rows){
     if(err){
       next(err);
       return;
@@ -507,6 +507,8 @@ app.post('/deleteEmployee', function(req, res){
   });
 });
 
+/** NOT WORKING REMOVE SINCE IT IS NOT NEEDED **/
+/*
 // edit employee
 app.get('/editEmployee/id=:id', function(req, res){
   var context = {};
@@ -553,6 +555,7 @@ app.get('/editEmployee/id=:id', function(req, res){
             el.current = 1;
           } else {
             el.current = 0;
+            
           }
         });
         // console.log(context);
@@ -582,7 +585,7 @@ app.post('/editEmployee', function(req, res){
     res.redirect('/employees'); 
   });
 });
-
+*/
 
 
 
