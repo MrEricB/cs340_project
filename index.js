@@ -11,7 +11,7 @@ var mysql = require('./db_info.js');
 
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
-app.set('port',3000);
+app.set('port', process.argv[2]);
 
 app.use(express.static(__dirname + '/public'));
 
@@ -409,7 +409,8 @@ app.post('/patients', function(req, res){
     Insured = '0'
   }
   //insert into the database
-  var sql = "INSERT INTO `Patients` (`ID`,`First_Name`, `Last_Name`, `DOB`, `Insured`, `Chief_Complaint`) VALUES (NULL,?,?,?,?,?)";
+  //removed `ID` because it's auto_increment -> don't need it
+  var sql = "INSERT INTO `Patients` (`First_Name`, `Last_Name`, `DOB`, `Insured`, `Chief_Complaint`) VALUES (NULL,?,?,?,?,?)";
   mysql.pool.query(sql,[First_Name,Last_Name,DOB,Insured,Chief_Complaint], function(err, rows){
     if(err){
       next(err);
@@ -508,7 +509,7 @@ app.post('/createEmployee', function(req, res){
   console.log(req.body);
   //insert into the database
   var sql = "INSERT INTO `Employees` (`First_Name`, `Last_Name`, `Salary`, `Employee_Type_ID`, `Department_ID`) VALUES (?,?,?,?,?)";
-  mysql.pool.query(sql,[First_Name,Last_Name,Salary,Employee_Type, Department], function(err, rows){
+  mysql.pool.query(sql,[First_Name,Last_Name,Salary,Employee_Type,Department], function(err, rows){
     if(err){
       next(err);
       return;
@@ -531,8 +532,6 @@ app.post('/deleteEmployee', function(req, res){
   });
 });
 
-/** NOT WORKING REMOVE SINCE IT IS NOT NEEDED **/
-/*
 // edit employee
 app.get('/editEmployee/id=:id', function(req, res){
   var context = {};
@@ -579,7 +578,6 @@ app.get('/editEmployee/id=:id', function(req, res){
             el.current = 1;
           } else {
             el.current = 0;
-            
           }
         });
         // console.log(context);
@@ -593,8 +591,8 @@ app.post('/editEmployee', function(req, res){
   var First_Name = req.body.firstname;
   var Last_Name = req.body.lastname;
   var Salary = req.body.salary;
-  var Employee_Type_ID = req.body.department;
-  var Department_ID = req.body.employee_type;
+  var Employee_Type_ID = req.body.employee_type;
+  var Department_ID = req.body.department;
   var eid = req.body.eid;
 
   var sql = "UPDATE `Employees` SET `First_Name` = (?),`Last_Name`=(?), `Salary`=(?), `Employee_Type_ID`=(?), `Department_ID`=(?) WHERE `Employees`.`ID` = (?)";
@@ -608,7 +606,7 @@ app.post('/editEmployee', function(req, res){
     res.redirect('/employees'); 
   });
 });
-*/
+
 
 
 
@@ -695,6 +693,6 @@ app.use(function(err, req, res, next){
   res.render('500');
 });
 
-app.listen(app.get('port'),function(){
-  console.log("Server is running...")
+app.listen(app.get('port'), function(){
+  console.log('Express started on http://localhost:' + app.get('port') + '; press Ctrl-C to terminate.');
 });
