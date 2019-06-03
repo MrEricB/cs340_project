@@ -589,7 +589,6 @@ app.get('/editEmployee/id=:id', function(req, res){
   });
 });
 
-// DOES NOT WORK
 app.post('/editEmployee', function(req, res){
   var First_Name = req.body.firstname;
   var Last_Name = req.body.lastname;
