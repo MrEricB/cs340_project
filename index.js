@@ -12,6 +12,7 @@ var mysql = require('./db_info.js');
 app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 app.set('port', process.argv[2]);
+//app.set('port', 3000);
 
 app.use(express.static(__dirname + '/public'));
 
@@ -24,10 +25,10 @@ app.get('/patienthome', function(req, res){
   res.render('patienthome')
 });
 // get all patients
-app.get('/patients', function(req, res){
+app.get('/patients', function(req, res, next){
   var context = {};
   var sql = "SELECT * FROM Patients"
-  mysql.pool.query(sql, function(err, rows, feilds){
+  mysql.pool.query(sql, function(err, rows, fields){
     if(err){
       next(err);
       return;
@@ -40,13 +41,18 @@ app.get('/patients', function(req, res){
   });
 });
 // get specific patient
-app.get('/patients/id=:id', function(req, res){
+app.get('/patients/id=:id', function(req, res, next){
   var id = req.params.id;
-  var sql = "SELECT * FROM Patients WHERE ID=(?);" // gets all patients info
-  // get all patients doctors
-  var sql_2 = "SELECT e.ID, e.First_Name, e.Last_Name, d.Department_Name, p.ID as PID FROM Patients p INNER JOIN Doctor_Patient dp ON p.ID = dp.Patient_ID INNER JOIN Employees e ON dp.Employee_id=e.ID INNER JOIN Department d ON e.Department_ID=d.ID WHERE p.ID=(?)"; 
-  // get all patients treatments 
-  var sql_3 = "SELECT t.ID, t.Treatment_Type, t.Insured_Price, t.Uninsured_Price, p.ID as PID FROM Patients p INNER JOIN Patient_Treatment pt ON p.ID=pt.Patient_ID INNER JOIN Treatments t ON pt.Treatment_ID=t.id WHERE p.ID=(?)"; 
+  var sql = "SELECT * FROM Patients WHERE ID=(?)";
+
+  var sql_2 = "SELECT e.ID, e.First_Name, e.Last_Name, d.Department_Name, p.ID as PID FROM Patients p " +
+  "INNER JOIN Doctor_Patient dp ON p.ID = dp.Patient_ID " +
+  "INNER JOIN Employees e ON dp.Employee_id=e.ID " +
+  "INNER JOIN Department d ON e.Department_ID=d.ID WHERE p.ID=(?)";
+
+  var sql_3 = "SELECT t.ID, t.Treatment_Type, t.Insured_Price, t.Uninsured_Price, p.ID as PID FROM Patients p " +
+  "INNER JOIN Patient_Treatment pt ON p.ID=pt.Patient_ID " +
+  "INNER JOIN Treatments t ON pt.Treatment_ID=t.id WHERE p.ID=(?)"; 
   
   var context = {};
   // get patient
@@ -58,7 +64,18 @@ app.get('/patients/id=:id', function(req, res){
     test = JSON.stringify(rows);
     test = JSON.parse(test);
     context.results = test[0];
-    
+    var date = new Date(context.results.DOB);
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    if(month < 10){
+        month = "0" + month;
+    }
+    var day = date.getDate();
+    if(day < 10){
+        day = "0" + day;
+    }
+    context.results.DOB = year + "-" + month + "-" + day;
+
     // get doctors
     mysql.pool.query(sql_2,[id], function(err, rows, feilds){
       if(err){
@@ -78,14 +95,13 @@ app.get('/patients/id=:id', function(req, res){
         test = JSON.stringify(rows);
         test = JSON.parse(test);
         context.treatments = test;
-        // console.log(context);
         res.render('SHHViewIndividualPatient', context);
       });
     });
   });
 });
 // Delete Patient
-app.post('/deletePatient', function(req, res) {
+app.post('/deletePatient', function(req, res, next) {
   //DELETE FROM Patients WHERE ID=:id;
   var id = req.body.pid;
   sql = 'DELETE FROM Patients WHERE ID=(?)';
@@ -99,7 +115,7 @@ app.post('/deletePatient', function(req, res) {
 
 });
 // edit patient
-app.get('/editPatient/id=:id', function(req, res){
+app.get('/editPatient/id=:id', function(req, res, next){
   var context = {};
   var id = req.params.id;
   var sql = "SELECT * FROM Patients WHERE ID=(?) LIMIT 1";
@@ -117,7 +133,7 @@ app.get('/editPatient/id=:id', function(req, res){
   });
 
 });
-app.post('/editPatient', function(req, res){
+app.post('/editPatient', function(req, res, next){
   var id = req.body.pid;
   var firstname = req.body.firstname;
   var lastname = req.body.lastname;
@@ -126,7 +142,9 @@ app.post('/editPatient', function(req, res){
   var insured = req.body.insured;
   var paid = req.body.paid;
 
-  var sql = "UPDATE Patients SET First_Name=(?), Last_Name=(?), DOB=(?), Insured=(?), Chief_Complaint=(?), Treatment_Paid=(?)  WHERE Patients.ID = (?) LIMIT 1";
+  var sql = "UPDATE Patients SET First_Name=(?), Last_Name=(?), DOB=(?), Insured=(?), Chief_Complaint=(?), Treatment_Paid=(?) " +
+  "WHERE Patients.ID = (?) LIMIT 1";
+
   mysql.pool.query(sql, [firstname,lastname,dob,insured, complaint, paid, id], function(err, rows, feilds){
     if(err){
       next(err);
@@ -140,13 +158,11 @@ app.post('/editPatient', function(req, res){
 
 //search for patient
 // get as post with render of all patients but change context
-app.post('/patientSearch', function(req, res){
+app.post('/patientSearch', function(req, res, next){
   var context = {};
   var searchName = req.body.patient.trim().split(" ");
   var fname = searchName[0];
   var lname = searchName[1] || "blank";
-// var fname = 'Dave';
-// var lname = 'Smith'
   var sql = "SELECT * from Patients WHERE First_Name LIKE '%" + fname + "%' OR Last_Name LIKE '%" + lname + "%' ";
   mysql.pool.query(sql, [fname, lname], function(err, rows, feilds){
     if(err){
@@ -156,13 +172,12 @@ app.post('/patientSearch', function(req, res){
     test = JSON.stringify(rows);
     test = JSON.parse(test);
     context.results = test;
-    console.log(fname, lname)
     res.render('SHHViewAllPatients', context);
   });
 }); 
 
 //remove treatment from patient
-app.post('/removeTreatmentPatient/pid=:pid&tid=:tid', function(req, res){
+app.post('/removeTreatmentPatient/pid=:pid&tid=:tid', function(req, res, next){
   var pid = req.params.pid;
   var tid = req.params.tid;
   var sql = "DELETE FROM Patient_Treatment WHERE Patient_ID=(?) AND Treatment_ID=(?)";
@@ -176,7 +191,7 @@ app.post('/removeTreatmentPatient/pid=:pid&tid=:tid', function(req, res){
 });
 
 //remove doctor from treatment
-app.post('/removeDoctorPatient/pid=:pid&did=:did', function(req, res){
+app.post('/removeDoctorPatient/pid=:pid&did=:did', function(req, res, next){
   var pid = req.params.pid;
   var did = req.params.did;
   var sql = "DELETE FROM Doctor_Patient WHERE Employee_ID=(?) AND Patient_ID=(?)";
@@ -185,9 +200,7 @@ app.post('/removeDoctorPatient/pid=:pid&did=:did', function(req, res){
       next(err);
       return;
     }
-    console.log(pid, did);
     res.redirect('/patients/id='+pid);
-    // res.redirect('/');
   });
 });
 
@@ -195,7 +208,7 @@ app.post('/removeDoctorPatient/pid=:pid&did=:did', function(req, res){
 
 
 // get all treatments
-app.get('/treatments', function(req, res){
+app.get('/treatments', function(req, res, next){
   var context = {};
   var sql = "SELECT * FROM Treatments"
   mysql.pool.query(sql, function(err, rows, feilds){
@@ -210,7 +223,7 @@ app.get('/treatments', function(req, res){
   });
 });
 
-app.get('/treatments/:id', function(req, res){
+app.get('/treatments/:id', function(req, res, next){
   var context = {};
   var id = req.params.id;
   var sql = "SELECT * FROM Treatments WHERE ID=?";
@@ -229,7 +242,7 @@ app.get('/treatments/:id', function(req, res){
 
 
 // DELETE Treatment
-app.post('/deleteTreatment', function(req, res){
+app.post('/deleteTreatment', function(req, res, next){
   var tid = req.body.tid;
   var sql = "DELETE FROM Treatments WHERE ID=(?)";
   mysql.pool.query(sql,[tid],function(err, rows, feilds){
@@ -240,16 +253,17 @@ app.post('/deleteTreatment', function(req, res){
     res.redirect('/treatments');
   });
 });
+
 // create Treatment
 app.get('/createTreatment', function(req, res){
   res.render('createTreatment');
 });
-app.post('/createTreatment', function(req, res){
+
+app.post('/createTreatment', function(req, res, next){
   var Treatment_Type = req.body.treatment_type;
   var Insurance_covers = req.body.insurance_cover;
   var Insurance_Price = req.body.insurance_price;
   var Uninsured_Price = req.body.uninsurance_price;
-  //insert into the database
   var sql = "INSERT INTO `Treatments` (`Treatment_Type`, `Insurance_covers`, `Insured_Price`, `Uninsured_Price`) VALUES (?,?,?,?)";
   mysql.pool.query(sql,[Treatment_Type, Insurance_covers, Insurance_Price, Uninsured_Price], function(err, rows){
     if(err){
@@ -262,7 +276,7 @@ app.post('/createTreatment', function(req, res){
 });
 
 //edit treatment
-app.get('/editTreatment/id=:id', function(req, res){
+app.get('/editTreatment/id=:id', function(req, res, next){
   var context = {};
   var tid = req.params.id;
   sql ="SELECT * FROM Treatments WHERE ID=(?)";
@@ -274,18 +288,18 @@ app.get('/editTreatment/id=:id', function(req, res){
     test = JSON.stringify(rows);
     test = JSON.parse(test);
     context.results = test[0];
-    // console.log(context);
     res.render('editTreatment', context)
   });
 });
-app.post('/editTreatments', function(req, res){
+app.post('/editTreatments', function(req, res, next){
   var treat_type = req.body.treatment_type;
   var insured = req.body.insurance_cover;
   var ins_price = req.body.insurance_price;
   var unins_price = req.body.uninsurance_price;
   var tid = req.body.tid;
-  console.log(req.body);
-  var sql = "UPDATE `Treatments` SET `Treatment_Type` = (?),`Insurance_covers`=(?), `Insured_Price`=(?), `Uninsured_Price`=(?) WHERE `Treatments`.`ID` = (?)";
+  var sql = "UPDATE `Treatments` SET `Treatment_Type` = (?),`Insurance_covers`=(?), `Insured_Price`=(?), `Uninsured_Price`=(?) " +
+  "WHERE `Treatments`.`ID` = (?)";
+
   mysql.pool.query(sql, [treat_type, insured, ins_price, unins_price, tid], function(err, rows, feilds){
     if(err){
       next(err);
@@ -299,7 +313,7 @@ app.post('/editTreatments', function(req, res){
 
 
 /** Add treatment to patient **/
-app.get('/addTreatment/id=:id', function(req, res){
+app.get('/addTreatment/id=:id', function(req, res, next){
   var id = req.params.id;
   var sql = "SELECT * FROM Treatments" 
   var context = {};
@@ -316,30 +330,26 @@ app.get('/addTreatment/id=:id', function(req, res){
       });
   });
 
-app.post('/addTreatment/id=:id', function(req, res){
+app.post('/addTreatment/id=:id', function(req, res, next){
   console.log(req.body);
   var pid = req.params.id;
   var tid = req.body.treatment;
   console.log(pid, tid);
   var sql = "INSERT INTO `Patient_Treatment` (`Patient_ID`, `Treatment_ID`) VALUES (?,?)";
-  // insert in new treatment for patient
   mysql.pool.query(sql,[pid, tid], function(err, rows){
     if(err){
       next(err);
       return;
     }
-    
     res.redirect('/patients/id='+pid);
   });
-
-
-
 });
 
 /** Add doctor to patient **/
-app.get("/addDoctor/id=:id", function(req, res){
+app.get("/addDoctor/id=:id", function(req, res, next){
   var id = req.params.id;
-  var sql = "SELECT e.ID,e.First_Name,e.Last_Name,et.Employee_Type FROM Employees e INNER JOIN Employee_Type et ON e.Employee_Type_ID=et.ID WHERE et.Employee_Type='Doctor'"
+  var sql = "SELECT e.ID,e.First_Name,e.Last_Name,et.Employee_Type FROM Employees e " +
+  "INNER JOIN Employee_Type et ON e.Employee_Type_ID=et.ID WHERE et.Employee_Type='Doctor'";
   var context = {};
   context.pid = id;
   mysql.pool.query(sql, function(err, rows, feilds){
@@ -350,15 +360,13 @@ app.get("/addDoctor/id=:id", function(req, res){
       test = JSON.stringify(rows);
       test = JSON.parse(test);
       context.doctors = test;
-      // console.log(context);
       res.render('addDoctor', context)
       });
 });
-app.post('/addDoctor/id=:id', function(req, res){
+
+app.post('/addDoctor/id=:id', function(req, res, next){
   var pid = req.body.patient;
   var eid = req.body.doctor;
-
-  //insert into the database
   var sql = "INSERT INTO `Doctor_Patient` (`Employee_ID`, `Patient_ID`) VALUES (?,?);";
   mysql.pool.query(sql,[eid, pid], function(err, rows){
     if(err){
@@ -367,15 +375,16 @@ app.post('/addDoctor/id=:id', function(req, res){
     }
     res.redirect('/patients/id='+pid);
   });
-
 });
 
 /** Adding a patient **/
-app.get('/createPatient', function(req, res){
-  var context = {}
-  //need to pass all doctors
-  var sql_1 = "SELECT * FROM Employees INNER JOIN Employee_Type ON Employees.Employee_Type_ID = Employee_Type.ID INNER JOIN Department ON Employees.Department_ID = Department.ID WHERE Employee_Type.Employee_Type='Doctor'"
-  var sql_2 = "SELECT * FROM Treatments"
+app.get('/createPatient', function(req, res, next){
+  var context = {};
+  var sql_1 = "SELECT * FROM Employees " +
+  "INNER JOIN Employee_Type ON Employees.Employee_Type_ID = Employee_Type.ID " +
+  "INNER JOIN Department ON Employees.Department_ID = Department.ID " +
+  "WHERE Employee_Type.Employee_Type='Doctor'";
+  var sql_2 = "SELECT * FROM Treatments";
   mysql.pool.query(sql_1, function(err, rows, feilds){
     if(err){
       next(err);
@@ -397,7 +406,8 @@ app.get('/createPatient', function(req, res){
     });
   });
 });
-app.post('/patients', function(req, res){
+
+app.post('/patients', function(req, res, next){
   var First_Name = req.body.firstname;
   var Last_Name = req.body.lastname;
   var DOB = req.body.dob;
@@ -410,7 +420,7 @@ app.post('/patients', function(req, res){
   }
   //insert into the database
   //removed `ID` because it's auto_increment -> don't need it
-  var sql = "INSERT INTO `Patients` (`First_Name`, `Last_Name`, `DOB`, `Insured`, `Chief_Complaint`) VALUES (NULL,?,?,?,?,?)";
+  var sql = "INSERT INTO `Patients` (`First_Name`, `Last_Name`, `DOB`, `Insured`, `Chief_Complaint`) VALUES (?,?,?,?,?)";
   mysql.pool.query(sql,[First_Name,Last_Name,DOB,Insured,Chief_Complaint], function(err, rows){
     if(err){
       next(err);
@@ -428,9 +438,11 @@ app.get('/hostpitalManagment', function(req, res){
  res.render('hostpitalManagment');
 });
 // get all employees
-app.get('/employees', function(req, res){
+app.get('/employees', function(req, res, next){
   var context = {};
-  var sql = "SELECT e.ID, e.First_Name, e.Last_Name, d.Department_Name FROM Employees e INNER JOIN Department d ON e.Department_ID=d.id"
+  var sql = "SELECT e.ID, e.First_Name, e.Last_Name, d.Department_Name FROM Employees e " +
+  "INNER JOIN Department d ON e.Department_ID=d.id";
+
   mysql.pool.query(sql, function(err, rows, feilds){
     if(err){
       next(err);
@@ -444,9 +456,12 @@ app.get('/employees', function(req, res){
   });
 });
 // get specific employee
-app.get('/allemployees/id=:id', function(req, res){
+app.get('/allemployees/id=:id', function(req, res, next){
   var id = req.params.id;
-  var sql = "SELECT * FROM Employees INNER JOIN Employee_Type ON Employees.Employee_Type_ID = Employee_Type.ID INNER JOIN Department ON Employees.Department_ID = Department.ID WHERE Employees.ID=(?)"  
+  var sql = "SELECT * FROM Employees " +
+  "INNER JOIN Employee_Type ON Employees.Employee_Type_ID = Employee_Type.ID " +
+  "INNER JOIN Department ON Employees.Department_ID = Department.ID WHERE Employees.ID=(?)" ;
+
   var context = {};
   mysql.pool.query(sql,[id], function(err, rows, feilds){
     if(err){
@@ -461,7 +476,7 @@ app.get('/allemployees/id=:id', function(req, res){
 });
 
 // create employee
-app.get('/createEmployee', function(req, res){
+app.get('/createEmployee', function(req, res, next){
   var context = {}
   //need to pass all doctors
   var sql_1 = "SELECT * FROM Employees"
@@ -499,7 +514,7 @@ app.get('/createEmployee', function(req, res){
     });
   });
 });
-app.post('/createEmployee', function(req, res){
+app.post('/createEmployee', function(req, res, next){
   var First_Name = req.body.firstname;
   var Last_Name = req.body.lastname;
   var Salary = req.body.salary;
@@ -519,7 +534,7 @@ app.post('/createEmployee', function(req, res){
 
 });
 // Delete Employee
-app.post('/deleteEmployee', function(req, res){
+app.post('/deleteEmployee', function(req, res, next){
   var eid = req.body.eid;
   var sql = "DELETE FROM Employees WHERE ID=(?)";
   mysql.pool.query(sql,[eid],function(err, rows, feilds){
@@ -533,12 +548,16 @@ app.post('/deleteEmployee', function(req, res){
 });
 
 // edit employee
-app.get('/editEmployee/id=:id', function(req, res){
+app.get('/editEmployee/id=:id', function(req, res, next){
   var context = {};
   var eid = req.params.id;
-  var sql_1 ="SELECT e.ID, e.First_Name, e.Last_Name, e.Salary, e.Employee_Type_ID, e.Department_ID, d.Department_Name, et.Employee_Type , d.ID as did, et.id as etid FROM Employees e INNER JOIN Department d ON e.Department_ID=d.ID INNER JOIN Employee_Type et ON e.Employee_Type_ID=et.ID WHERE e.ID=(?)";
-  var sql_2 = "SELECT * FROM Employee_Type"
-  var sql_3 = "SELECT * FROM Department"
+  var sql_1 ="SELECT e.ID, e.First_Name, e.Last_Name, e.Salary, e.Employee_Type_ID, " +
+  "e.Department_ID, d.Department_Name, et.Employee_Type , d.ID as did, et.id as etid FROM Employees e " +
+  "INNER JOIN Department d ON e.Department_ID=d.ID " +
+  "INNER JOIN Employee_Type et ON e.Employee_Type_ID=et.ID WHERE e.ID=(?)";
+
+  var sql_2 = "SELECT * FROM Employee_Type";
+  var sql_3 = "SELECT * FROM Department";
   // get employee
   mysql.pool.query(sql_1,[eid], function(err, rows, feilds){
     if(err){
@@ -587,8 +606,8 @@ app.get('/editEmployee/id=:id', function(req, res){
   });
 });
 
-// DOES NOT WORK
-app.post('/editEmployee', function(req, res){
+// Editing employee bug fixed
+app.post('/editEmployee', function(req, res, next){
   var First_Name = req.body.firstname;
   var Last_Name = req.body.lastname;
   var Salary = req.body.salary;
@@ -596,7 +615,9 @@ app.post('/editEmployee', function(req, res){
   var Department_ID = req.body.department;
   var eid = req.body.eid;
 
-  var sql = "UPDATE `Employees` SET `First_Name` = (?),`Last_Name`=(?), `Salary`=(?), `Employee_Type_ID`=(?), `Department_ID`=(?) WHERE `Employees`.`ID` = (?)";
+  var sql = "UPDATE `Employees` SET `First_Name` = (?),`Last_Name`=(?), `Salary`=(?), `Employee_Type_ID`=(?), `Department_ID`=(?) " +
+  "WHERE `Employees`.`ID` = (?)";
+
   mysql.pool.query(sql, [First_Name, Last_Name, Salary, Employee_Type_ID, Department_ID, eid], function(err, rows, feilds){
     if(err){
       next(err);
@@ -608,15 +629,8 @@ app.post('/editEmployee', function(req, res){
   });
 });
 
-
-
-
-
-
-
- 
 // get all departments
-app.get('/departments', function(req, res){
+app.get('/departments', function(req, res, next){
   var context = {};
   sql = "SELECT * FROM Department";
   mysql.pool.query(sql, function(err, rows, feilds){
@@ -635,7 +649,7 @@ app.get('/departments', function(req, res){
 app.get('/createDepartment', function(req, res){
   res.render('createDepartment');
 });
-app.post('/createDepartment', function(req, res){
+app.post('/createDepartment', function(req, res, next){
   var Department_Name = req.body.department;
   var Budget = req.body.budget;
   //insert into the database
@@ -650,7 +664,7 @@ app.post('/createDepartment', function(req, res){
 });
 
 // get all employee_types
-app.get('/employee_types', function(req, res){
+app.get('/employee_types', function(req, res, next){
   var context = {};
   var sql = "SELECT * FROM Employee_Type"
   mysql.pool.query(sql, function(err, rows, feilds){
@@ -669,7 +683,7 @@ app.get('/employee_types', function(req, res){
 app.get('/createEmployeeType', function(req, res){
   res.render('createEmployeeType');
 });
-app.post('/createEmployeeType', function(req, res){
+app.post('/createEmployeeType', function(req, res, next){
   var type = req.body.employee_type;
   //insert into the database
   var sql = "INSERT INTO `Employee_Type` (`Employee_Type`) VALUES (?)";
